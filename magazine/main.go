@@ -15,14 +15,14 @@ import (
 )
 
 var (
-	dirpath        string
+	dirPath        string
 	writeGlockfile bool
 )
 
 func main() {
-	log.Infof("magazine: a program to load glock with vendor checkouts from govendor")
+	log.Debug("magazine: a program to load glock with vendor checkouts from govendor")
 
-	flag.StringVar(&dirpath, "dirpath", "", "path to Go project above vendor/  eg: $GOPATH/src/github.com/lytics/gowrapmx4j")
+	flag.StringVar(&dirPath, "dirPath", "", "path to Go project above vendor/  eg: $GOPATH/src/github.com/lytics/gowrapmx4j")
 	flag.BoolVar(&writeGlockfile, "gfile", true, "write the GLOCKFILE to the Go directory specified")
 	flag.Parse()
 
@@ -32,7 +32,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	vf, err := vendorutils.ReadVendorFile(dirpath+"/vendor", dirpath+"/vendor/vendor.json")
+	vf, err := vendorutils.ReadVendorFile(dirPath+"/vendor", dirPath+"/vendor/vendor.json")
 	if err != nil {
 		log.Errorf("error reading vendorfile: %v\n", err)
 		os.Exit(1)
@@ -41,6 +41,9 @@ func main() {
 	revs := make(map[string]string)
 	vfpkgs := make(map[string]string)
 
+	// iterate over packages from vendorfile and use VCS revisions to remove
+	// duplicate package paths. Perfer the shortest/highest package paths and
+	// store in map keyed on revisions.
 	for _, p := range vf.Package {
 		if r, ok := revs[p.Revision]; ok {
 			if len(r) < len(p.Path) {
@@ -48,17 +51,19 @@ func main() {
 			}
 		} else {
 			revs[p.Revision] = p.Path
-			fmt.Printf("%#v\n", p)
 		}
 		vfpkgs[p.Path] = p.Revision
 	}
 
+	// create a sorted list of package paths from the revision map
 	pkgs := make([]string, 0)
 	for _, v := range revs {
 		pkgs = append(pkgs, v)
 	}
 	sort.Strings(pkgs)
 
+	// construct the absolute path of the Go package and use FindVCSRoot to
+	// recursively find the root directory of the project that is `go get`-able.
 	var gfb bytes.Buffer
 	for _, p := range pkgs {
 		gps := path.Join(gp, "src")
@@ -72,7 +77,7 @@ func main() {
 	}
 
 	if writeGlockfile {
-		ioutil.WriteFile(dirpath+"/GLOCKFILE", gfb.Bytes(), 0644)
+		ioutil.WriteFile(dirPath+"/GLOCKFILE", gfb.Bytes(), 0644)
 	} else {
 		log.Infof("GLOCKFILE deps: \n%s", gfb.Bytes())
 	}

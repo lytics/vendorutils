@@ -14,7 +14,7 @@ A tool to convert `govendor` `vendor/vendor.json` file to the `GLOCKFILE` standa
 
 Scan the `gowrapmx4j/vendor/vendor.json` file and write the GLOCKFILE which `glock` can use to sync dependencies in the GOPATH.  
 
-`magazine -dirpath=$GOPATH/src/github.com/lytics/gowrapmx4j`
+`magazine -dirPath=$GOPATH/src/github.com/lytics/gowrapmx4j`
 
 Use Glock to sync the GOPATH
 
