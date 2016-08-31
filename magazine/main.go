@@ -17,15 +17,24 @@ import (
 var (
 	dirPath        string
 	writeGlockfile bool
+	loglvl         string
 )
 
 func main() {
-	log.Debug("magazine: a program to load glock with vendor checkouts from govendor")
 
 	flag.StringVar(&dirPath, "dirPath", "", "path to Go project above vendor/  eg: $GOPATH/src/github.com/lytics/gowrapmx4j")
 	flag.BoolVar(&writeGlockfile, "gfile", true, "write the GLOCKFILE to the Go directory specified")
+	flag.StringVar(&loglvl, "loglvl", "info", "logrus log level to use")
 	flag.Parse()
 
+	lvl, err := log.ParseLevel(loglvl)
+	if err != nil {
+		log.Errorf("error parsing log level: %v", err)
+		os.Exit(1)
+	}
+	log.SetLevel(lvl)
+
+	log.Debug("magazine: a program to load glock with vendor checkouts from govendor")
 	gp := os.Getenv("GOPATH")
 	if gp == "" {
 		log.Errorf("error reading GOPATH envvar")
@@ -53,6 +62,7 @@ func main() {
 			revs[p.Revision] = p.Path
 		}
 		vfpkgs[p.Path] = p.Revision
+		log.Debugf("%s %s", p.Path, p.Revision)
 	}
 
 	// create a sorted list of package paths from the revision map
@@ -73,6 +83,7 @@ func main() {
 			os.Exit(1)
 		}
 		vt := strings.TrimPrefix(v, gps+"/")
+		log.Debugf("%s %s", vt, vfpkgs[p])
 		fmt.Fprintf(&gfb, "%s %s\n", vt, vfpkgs[p])
 	}
 
