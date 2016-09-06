@@ -6,7 +6,7 @@ Utilities(or hacks pending viewpoint) to assist managing the Go `vendor/` standa
 
 ## magazine
 
-A tool to convert `govendor` `vendor/vendor.json` file to the `GLOCKFILE` standard. Interestingly scanning the same directory `govendor` actually produces a different list of packages since it flattens dependencies which exist in external `vendor/` directories. So far this has been a good thing, however it's something to be aware of and might cause issues. Example/issue of the behavior can be found [here](https://github.com/kardianos/govendor/issues/207).
+A tool to convert `govendor` `vendor/vendor.json` file to the `GLOCKFILE` standard. There was a bug in older versions of `govendor` which caused issues with package flattening. So ensure that your `govendor` version is `v1.0.6` or newer.
 
 #### magazine usage
 
