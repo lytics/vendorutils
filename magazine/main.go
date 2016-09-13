@@ -78,8 +78,9 @@ func main() {
 	for _, p := range pkgs {
 		gps := path.Join(gp, "src")
 		v, err := vendorutils.FindVCSRoot(path.Join(gps, p))
+		log.Debugf("checking path: '%s/%s' '%s'", gps, p, v)
 		if err != nil {
-			log.Errorf("error finding VCS[%s]: %v", v, err)
+			log.Errorf("error finding VCS[%s]: %v", gps, err)
 			os.Exit(1)
 		}
 		vt := strings.TrimPrefix(v, gps+"/")
